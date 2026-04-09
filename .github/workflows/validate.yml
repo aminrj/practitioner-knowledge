@@ -1,0 +1,38 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make scripts executable
+        run: chmod +x scripts/*.sh tests/*.sh
+
+      - name: Validate skill structure and frontmatter
+        run: ./scripts/validate-skills.sh
+
+      - name: Verify .claude/skills symlink resolves
+        run: |
+          # On Linux the symlink should resolve correctly
+          ls .claude/skills/
+          echo "Symlink check passed"
+
+      - name: Verify frontmatter strip works on all skills
+        run: |
+          for f in skills/*/SKILL.md; do
+            name=$(dirname "$f" | xargs basename)
+            body=$(awk 'BEGIN{n=0} /^---/{n++; next} n>=2{print}' "$f")
+            count=$(echo "$body" | grep -c '[^[:space:]]' || true)
+            echo "  ${name}: ${count} non-empty lines after strip"
+            if [ "$count" -lt 5 ]; then
+              echo "FAIL: body too short"
+              exit 1
+            fi
+          done
