@@ -81,7 +81,6 @@ OLLAMA_MODEL=gemma4:27b ./tests/test-humanizer.sh
 |---|---|---|
 | humanizer | [blader/humanizer](https://github.com/blader/humanizer), vetted by [trailofbits/skills-curated](https://github.com/trailofbits/skills-curated) | 2.3.0 |
 | security-threat-model | [openai/skills](https://github.com/openai/skills), ported by trailofbits/skills-curated, extended with OWASP ASI01–ASI10 | 1.0.0 |
-| react-pdf | [trailofbits/skills-curated](https://github.com/trailofbits/skills-curated/tree/main/plugins/react-pdf/skills/react-pdf) | 1.0.0 |
 
 ## Frontmatter strip — how it works
 
