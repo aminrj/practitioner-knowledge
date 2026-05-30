@@ -24,15 +24,28 @@ Never use "—" (em dash) anywhere in text. Use:
 - Period "." to end sentences
 - Parentheses "(X)" for asides
 
-### Text Always Legible
-Every text element must be readable against its background. Rules:
-- **Outlined boxes** (white fill): use `fill="#0f172a"` (dark text)
-- **Filled accent boxes** (dark fill): use `fill="#ffffff"` (white text)
-- **Subtle background cards** (light gray fill): use `fill="#0f172a"` (dark text)
-- **Captions and annotations**: use `fill="#64748b"` (muted gray)
-- **Never** use light text on light backgrounds
-- **Never** use dark text on dark backgrounds
-- Always test: dark text on white, white text on dark — that's your baseline
+### Text Always Legible — ABSOLUTE RULE
+Every text element must be readable against its background. This is non-negotiable.
+
+**Only two patterns allowed for boxes:**
+- **Outlined boxes**: `fill="#ffffff"` background + `fill="#0f172a"` text (dark on white)
+- **Filled boxes**: `fill="#0f172a"` background + `fill="#ffffff"` text (white on dark)
+
+**Never use mid-tone fills** (like `#64748b`, `#94a3b8`, `#334155`, `#475569`) because:
+- White text on `#64748b` is unreadable
+- Dark text on `#94a3b8` is unreadable
+- Any mid-tone with either text color risks poor contrast
+
+**If you need visual hierarchy, use:**
+- Filled vs outlined (not different fill colors)
+- Line weight (thick vs thin strokes)
+- Position (top = more important)
+- Accent color on borders only
+
+**Other text:**
+- Captions/annotations: `fill="#64748b"` on `#ffffff` background
+- Subtle card labels: `fill="#334155"` on `#f8fafc` background
+- Arrowheads: `fill="#64748b"` on `#ffffff` background
 
 ### Clear Reading Flow
 Every diagram must have a natural reading order:
@@ -143,7 +156,7 @@ Accent green:      #059669
 | Shape | When | Style |
 |-------|------|-------|
 | **Outlined rect** (rx=6) | Standard nodes, items | `fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"`, text `#0f172a` |
-| **Filled rect** (rx=6) | Headers, key elements | `fill="#0f172a"`, text `#ffffff` |
+| **Filled rect** (rx=6) | Headers, key elements ONLY | `fill="#0f172a"`, text `#ffffff` |
 | **Filled pill** (rx=16) | Tags, badges | `fill="#f8fafc" stroke="#e2e8f0"`, text `#334155` |
 | **Circle** | Start/end, data points | `fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"`, text `#0f172a` |
 | **Cylinder** | Data stores | Custom path, `fill="#ffffff" stroke="#e2e8f0"`, text `#0f172a` |
@@ -253,18 +266,19 @@ Use multiples of 4px for consistency:
 
 ### Architecture Stack (top-to-bottom)
 ```
-┌─────────────────────┐  ← Layer 1 (accent color, top)
+┌─────────────────────┐  ← Layer 1 (filled, accent color)
 │  Top Layer          │
 ├─────────────────────┤
 │  Layer 2            │
 ├─────────────────────┤
 │  Layer 3            │
-└─────────────────────┘  ← Layer N (lightest, bottom)
+└─────────────────────┘  ← Layer N (outlined, white)
 ```
-- Each layer: filled rect with accent color
-- Labels inside, centered, white text on dark fills
+- Layer 1: filled rect with accent color, white text
+- All other layers: outlined rects with white fill, dark text
 - Cross-layer connections: dashed curved lines on the side
 - Caption explains each layer
+- **Never use gradient fills** — filled on top, outlined below
 
 ### Mapping (left-to-right)
 ```
