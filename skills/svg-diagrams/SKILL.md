@@ -1,201 +1,132 @@
 ---
 name: svg-diagrams
-version: 4.0.0
+version: 5.0.0
 description: >-
   Generate publication-quality SVG diagrams for blog posts and slides.
-  Uses embedded Google Fonts (Inter + Space Grotesk), automatic dark/light
-  mode via prefers-color-scheme, and a professional design system inspired
-  by Stripe docs, Vercel blog, and Linear. Produces diagrams that look
-  hand-crafted in Figma — never like AI-generated gradient boxes.
-  Use when the user wants a diagram for publishing. Avoid for quick sketches.
+  Uses IBM Plex Sans + IBM Plex Mono for a professional, technical look.
+  Produces diagrams that look hand-crafted in Figma — never like AI-generated
+  gradient boxes. Use when the user wants a diagram for publishing.
+  Avoid for quick sketches.
 ---
 
 # SVG Diagrams — Publication Quality
 
 You are a technical illustrator. Your diagrams look like they were drawn by
-a senior designer in Figma — clean, intentional, and accessible in both dark
-and light modes.
+a senior designer in Figma — clean, intentional, and readable.
 
 ## Critical Rules
 
 ### No Em Dashes
-Never use "—" (em dash) anywhere in text. Use these alternatives:
+Never use "—" (em dash) anywhere in text. Use:
 - "and" instead of "X — Y"
 - "vs" or "versus" instead of "X — Y"
-- "to" instead of "X — Y"
 - Hyphen "-" for compound words
 - Period "." to end sentences
 - Parentheses "(X)" for asides
 
-If you see "—" in your output, replace it immediately.
-
 ### Text Always Legible
-Every text element must have sufficient contrast against its background.
-Rules:
-- **Light mode**: dark text on light backgrounds, light text on dark backgrounds
-- **Dark mode**: light text on dark backgrounds, dark text on light backgrounds
-- **Never** use white text on light backgrounds (invisible in dark mode)
-- **Never** use dark text on dark backgrounds (invisible in light mode)
-- Use CSS variables for text color too: `fill="var(--text-on-accent)"`
+Every text element must be readable against its background. Rules:
+- **Outlined boxes** (white fill): use `fill="#0f172a"` (dark text)
+- **Filled accent boxes** (dark fill): use `fill="#ffffff"` (white text)
+- **Subtle background cards** (light gray fill): use `fill="#0f172a"` (dark text)
+- **Captions and annotations**: use `fill="#64748b"` (muted gray)
+- **Never** use light text on light backgrounds
+- **Never** use dark text on dark backgrounds
+- Always test: dark text on white, white text on dark — that's your baseline
 
 ### Clear Reading Flow
 Every diagram must have a natural reading order:
-- **Top to bottom** for hierarchical diagrams (architecture stacks, processes)
-- **Left to right** for comparison diagrams (before/after, traditional/new)
-- **Left to right, top to bottom** for flowcharts
-- Use visual cues: arrows, numbering, position, and color weight
-- The most important element should be readable first (top-left or top-center)
-- Never create circular or ambiguous reading paths
+- **Top to bottom** for stacks, processes, hierarchies
+- **Left to right** for comparisons, mappings
+- **Left to right, then down** for flowcharts
+- Use arrows, numbering, and position to reinforce the flow
+- The most important element should be readable first
 
-## The Anti-AI Checklist
-
-If your output has any of these, it's too AI-looking. Fix it:
-
-- ❌ Gradient fills (blue-to-dark-blue, violet-to-dark-violet)
-- ❌ Drop shadows on every element
-- ❌ Uniform box sizes regardless of content
-- ❌ Rainbow palettes (more than 2 accent colors)
-- ❌ Straight-line arrows everywhere
-- ❌ Rigid grid layouts with no visual rhythm
-- ❌ System fonts with no weight variation
-- ❌ "Fill" on every shape — strokes are cleaner
-- ❌ No dark mode support (missing `prefers-color-scheme`)
-- ❌ Em dashes ("—") in any text
-- ❌ White text on light backgrounds (invisible in dark mode)
-- ❌ No clear reading flow (top-down, left-right)
+### No Em Dashes, No Gradients, No Shadows
+- No "—" (em dashes) — use "and", "vs", "to", or a period
+- No gradients — solid fills only
+- No drop shadows — borders instead
 
 ## Design Philosophy
 
-### The Stripe/Vercel/Linear Aesthetic
-
 Professional technical diagrams share these traits:
 
-1. **White space is the design** — Generous padding, clear grouping, nothing
-   cramped. Elements breathe.
-2. **Color is a signal, not decoration** — One accent color per diagram. Use
-   color to distinguish categories, not to make things "look nice."
-3. **Stroke > fill** — Outlined elements look cleaner. Fill only for headers,
-   key elements, or visual weight.
-4. **Typography drives hierarchy** — Title (bold, large) → Labels (medium) →
-   Body (regular) → Captions (muted, small). Weight matters more than size.
-5. **Lines are intentional** — Thick for primary flow, thin for secondary.
-   Curves where natural, straight where structural.
+1. **White space is the design** — Generous padding, clear grouping, nothing cramped.
+2. **Color is a signal** — One accent color per diagram. Use color to distinguish, not decorate.
+3. **Stroke > fill** — Outlined elements look cleaner. Fill only for headers and key elements.
+4. **Typography drives hierarchy** — Title (bold, large) → Labels (medium) → Body (regular) → Captions (muted).
+5. **Lines are intentional** — Thick for primary flow, thin for secondary. Curves where natural.
 6. **No decoration without purpose** — No shadows, no gradients, no patterns.
-   Every visual element must convey information.
 
 ## Typography
 
-Use Google Fonts embedded via `<style>` block. This works in all browsers
-where SVGs are rendered (blog posts, slides, presentations).
+Use IBM Plex Sans (body) and IBM Plex Mono (labels, tags) from Google Fonts.
+IBM Plex was designed by IBM for technical documentation — it looks professional,
+institutional, and purposeful. Not generic. Not "Inter."
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 ```
 
 Font assignment:
-- **Space Grotesk** — Titles, section headers, labels (geometric, modern)
-- **Inter** — Body text, captions, annotations (highly readable)
+- **IBM Plex Sans 700** — Titles (bold, authoritative)
+- **IBM Plex Sans 600** — Headers, section labels (medium-bold)
+- **IBM Plex Sans 500** — Body text in boxes (medium)
+- **IBM Plex Sans 400** — Captions, annotations (regular)
+- **IBM Plex Mono 500** — Tags, codes, technical terms (monospaced)
 
 ```
-Title:      24px, Space Grotesk 700
-Subtitle:   14px, Space Grotesk 600
-Body:       13px, Inter 400
-Label:      12px, Space Grotesk 500
-Caption:    11px, Inter 400
-Tag:        10px, Inter 500 (uppercase, letter-spacing 0.5)
+Title:      24px, IBM Plex Sans 700
+Header:     12px, IBM Plex Sans 600
+Body:       14px, IBM Plex Sans 500
+Caption:    12px, IBM Plex Sans 400
+Tag:        10px, IBM Plex Mono 500 (uppercase, letter-spacing 0.5)
 ```
 
-## Color System — Light and Dark Mode
+## Color System
 
-Define colors in a `<style>` block using CSS custom properties scoped to
-`prefers-color-scheme`. This gives automatic dark/light adaptation.
+Use a minimal palette. No CSS variables, no dark mode. Keep it simple.
 
-```css
-:root {
-  /* Light mode (default) */
-  --bg: #ffffff;
-  --bg-subtle: #f8fafc;
-  --border: #e2e8f0;
-  --border-subtle: #f1f5f9;
-  --text: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #94a3b8;
-  --accent: #0f172a;
-  --accent-secondary: #2563eb;
-  --accent-green: #059669;
-  --accent-red: #dc2626;
-  --text-on-accent: #ffffff;
-  --text-on-accent-secondary: #ffffff;
-  --text-on-bg-subtle: #0f172a;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b1120;
-    --bg-subtle: #1e293b;
-    --border: #334155;
-    --border-subtle: #1e293b;
-    --text: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --text-muted: #64748b;
-    --accent: #f1f5f9;
-    --accent-secondary: #60a5fa;
-    --accent-green: #34d399;
-    --accent-red: #f87171;
-    --text-on-accent: #0f172a;
-    --text-on-accent-secondary: #0f172a;
-    --text-on-bg-subtle: #f1f5f9;
-  }
-}
+```
+Background:        #ffffff
+Background subtle: #f8fafc
+Border:            #e2e8f0
+Border subtle:     #f1f5f9
+Text:              #0f172a
+Text secondary:    #334155
+Text muted:        #64748b
+Accent:            #0f172a
+Accent blue:       #2563eb
+Accent green:      #059669
 ```
 
-**Contrast rules:**
-- `--text` on `--bg` — body text on white/dark bg
-- `--text-on-accent` on `--accent` — text on filled accent boxes (inverts per mode)
-- `--text-on-bg-subtle` on `--bg-subtle` — text on subtle background cards
-- `--text-muted` on `--bg` or `--bg-subtle` — captions and annotations
-
-**Never hardcode colors.** Always use CSS variables. This guarantees contrast
-works in both light and dark modes.
+**Rules:**
+- One accent color per diagram (default: `#0f172a`)
+- Accent blue for secondary emphasis
+- Accent green for positive/flow indicators
+- Text on white/outlined boxes: `#0f172a`
+- Text on filled accent boxes: `#ffffff`
+- Captions: `#64748b`
 
 ## SVG Structure
 
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
-    :root {
-      /* Light mode */
-      --bg: #ffffff; --bg-subtle: #f8fafc; --border: #e2e8f0;
-      --text: #0f172a; --text-secondary: #334155; --text-muted: #94a3b8;
-      --accent: #0f172a; --accent-secondary: #2563eb; --accent-green: #059669;
-      --text-on-accent: #ffffff; --text-on-bg-subtle: #0f172a;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0b1120; --bg-subtle: #1e293b; --border: #334155;
-        --text: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #64748b;
-        --accent: #f1f5f9; --accent-secondary: #60a5fa; --accent-green: #34d399;
-        --text-on-accent: #0f172a; --text-on-bg-subtle: #f1f5f9;
-      }
-    }
-
-    .title { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; fill: var(--text); }
-    .subtitle { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; fill: var(--text-secondary); }
-    .body { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 400; fill: var(--text); }
-    .label { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 500; fill: var(--text-secondary); }
-    .caption { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; fill: var(--text-muted); }
-    .tag { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500; fill: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; }
-    .header { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; fill: var(--text-secondary); letter-spacing: 0.8px; text-transform: uppercase; }
+    .title { font-family: 'IBM Plex Sans', sans-serif; font-size: 24px; font-weight: 700; fill: #0f172a; }
+    .header { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600; fill: #334155; letter-spacing: 0.5px; text-transform: uppercase; }
+    .body { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 500; fill: #0f172a; }
+    .caption { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 400; fill: #64748b; }
+    .tag { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; fill: #334155; letter-spacing: 0.5px; text-transform: uppercase; }
   </style>
 
-  <rect width="100%" height="100%" fill="var(--bg)"/>
+  <rect width="800" height="500" fill="#ffffff"/>
 
   <!-- Title -->
   <text x="400" y="40" class="title" text-anchor="middle">Title</text>
-  <line x1="160" y1="56" x2="640" y2="56" stroke="var(--border-subtle)" stroke-width="1"/>
+  <line x1="160" y1="56" x2="640" y2="56" stroke="#f1f5f9" stroke-width="1"/>
 
   <!-- Content -->
   <!-- ... -->
@@ -209,22 +140,23 @@ works in both light and dark modes.
 
 | Shape | When | Style |
 |-------|------|-------|
-| **Outlined rect** (rx=6) | Standard nodes, items | `fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"` |
-| **Filled rect** (rx=6) | Headers, key elements | `fill="var(--accent)"` with `fill="var(--text-on-accent)"` text |
-| **Filled pill** (rx=16) | Tags, badges | `fill="var(--bg-subtle)" stroke="var(--border)"` with `fill="var(--text-on-bg-subtle)"` |
-| **Circle** | Start/end, data points | `fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"` |
-| **Cylinder** | Data stores | Custom path, `fill="var(--bg)" stroke="var(--border)"` |
+| **Outlined rect** (rx=6) | Standard nodes, items | `fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"`, text `#0f172a` |
+| **Filled rect** (rx=6) | Headers, key elements | `fill="#0f172a"`, text `#ffffff` |
+| **Filled pill** (rx=16) | Tags, badges | `fill="#f8fafc" stroke="#e2e8f0"`, text `#334155` |
+| **Circle** | Start/end, data points | `fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"`, text `#0f172a` |
+| **Cylinder** | Data stores | Custom path, `fill="#ffffff" stroke="#e2e8f0"`, text `#0f172a` |
 
 ## Lines and Connections
 
 | Type | Style | Use |
 |------|-------|-----|
-| **Primary flow** | `stroke="var(--accent)" stroke-width="2"` | Main path, critical connections |
-| **Secondary flow** | `stroke="var(--text-muted)" stroke-width="1.5"` | Supporting connections |
-| **Dashed** | `stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="5,4"` | Optional, indirect |
-| **Thick arrow** | `stroke="var(--accent)" stroke-width="3"` | Emphasized connection |
+| **Primary flow** | `stroke="#0f172a" stroke-width="2"` | Main path, critical connections |
+| **Secondary flow** | `stroke="#64748b" stroke-width="1.5"` | Supporting connections |
+| **Dashed** | `stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,4"` | Optional, indirect |
+| **Accent line** | `stroke="#2563eb" stroke-width="2"` | Emphasized connection |
+| **Green line** | `stroke="#059669" stroke-width="2" stroke-dasharray="5,4"` | Positive/feedback flows |
 
-**Arrowheads**: Use `<marker>` sparingly. Prefer on primary flow only.
+**Arrowheads**: Use `<polygon>` for simple arrowheads. Prefer on primary flow only.
 For secondary connections, use a simple line end or dot.
 
 **Curves**: Use `Q` (quadratic) for simple curves, `C` (cubic) for complex.
@@ -271,7 +203,7 @@ Use multiples of 4px for consistency:
 
 ### Alignment
 - Align elements on a grid, but never make the grid visible
-- Group related elements with subtle background rectangles (`fill="var(--bg-subtle)" rx=8`)
+- Group related elements with subtle background rectangles (`fill="#f8fafc" rx=8`)
 - Use consistent left-edge alignment for lists and columns
 - Center-align titles and captions
 
@@ -281,11 +213,6 @@ Use multiples of 4px for consistency:
 - Tertiary elements: muted colors, dashed lines, smaller
 - Never make everything equal — hierarchy is essential
 
-### Rhythm
-- Maintain consistent vertical rhythm (line-height approximately 1.5)
-- Elements at the same vertical position should be aligned
-- Alternating patterns create visual interest (filled, outlined, filled, outlined)
-
 ## Workflow
 
 1. **Identify the core message** — What is the ONE thing this diagram communicates?
@@ -293,10 +220,9 @@ Use multiples of 4px for consistency:
 3. **Sketch the layout** — Plan node positions, grouping, and flow. Use the spacing scale.
 4. **Choose accent color** — One color for the diagram's primary signal. Everything else is neutral.
 5. **Build in order** — Follow the reading flow: title → first elements → connections → labels → caption.
-6. **Add dark mode** — Include `prefers-color-scheme` with inverted contrast for all colors.
-7. **Check contrast** — Every text element must be readable in both light and dark modes.
-8. **Check for em dashes** — Replace any "—" with "and", "vs", "to", or a period.
-9. **Review** — Check against the anti-AI checklist. Remove decoration without purpose.
+6. **Check contrast** — Dark text on white boxes, white text on dark boxes. Always legible.
+7. **Check for em dashes** — Replace any "—" with "and", "vs", "to", or a period.
+8. **Review** — Check against the anti-AI checklist. Remove decoration without purpose.
 
 ## Diagram Patterns
 
@@ -310,7 +236,6 @@ Use multiples of 4px for consistency:
 - Arrows: primary flow `stroke-width=2`, arrowheads
 - Numbered steps reinforce reading order
 - Curved arrows for branches or feedback loops
-- Horizontal spacing: 80-100px between nodes
 
 ### Comparison (left-to-right)
 ```
@@ -335,7 +260,7 @@ Use multiples of 4px for consistency:
 └─────────────────────┘  ← Layer N (lightest, bottom)
 ```
 - Each layer: filled rect with accent color
-- Labels inside, centered, white text on dark fills (use `var(--text-on-accent)`)
+- Labels inside, centered, white text on dark fills
 - Cross-layer connections: dashed curved lines on the side
 - Caption explains each layer
 
@@ -370,7 +295,6 @@ Use multiples of 4px for consistency:
 - Save to `assets/diagrams/` in the target project
 - Name: `topic-description.svg` (e.g., `stride-ai-mapping.svg`)
 - Width: 700-900px for blog posts, wider (1000-1200px) for slides
-- Always include `prefers-color-scheme` for blog posts
 - Set `width` and `height` attributes on the `<svg>` element
 - Reference in markdown: `![description](/assets/diagrams/filename.svg)`
 
@@ -383,11 +307,9 @@ Use multiples of 4px for consistency:
 5. **No hierarchy** — If everything is equally important, nothing is.
 6. **Tight layouts** — Crowded diagrams are unreadable. Add padding.
 7. **Missing context** — A diagram without title and caption is useless.
-8. **No dark mode** — Blog SVGs should adapt to user preference.
-9. **Hardcoded colors** — Always use CSS variables for theming.
-10. **Em dashes** — Replace "—" with "and", "vs", "to", or a period.
-11. **White on light** — Invisible in dark mode. Use `var(--text-on-accent)` for text on filled boxes.
-12. **Ambiguous flow** — Every diagram needs a clear reading direction.
+8. **Hardcoded wrong contrast** — White text on light backgrounds is invisible.
+9. **Em dashes** — Replace "—" with "and", "vs", "to", or a period.
+10. **Ambiguous flow** — Every diagram needs a clear reading direction.
 
 ## Reference Aesthetics
 
@@ -395,5 +317,4 @@ Study these for the target look:
 - **Stripe docs** — Clean, minimal, consistent spacing
 - **Vercel blog** — Technical diagrams with clear hierarchy
 - **Linear** — Product diagrams with subtle color and clean lines
-- **Notion** — Simple, readable, accessible
-- **Figma blog** — Process diagrams with visual rhythm
+- **IBM Design** — IBM Plex fonts, institutional quality, technical clarity
