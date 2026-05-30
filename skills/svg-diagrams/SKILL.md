@@ -1,6 +1,6 @@
 ---
 name: svg-diagrams
-version: 3.0.0
+version: 4.0.0
 description: >-
   Generate publication-quality SVG diagrams for blog posts and slides.
   Uses embedded Google Fonts (Inter + Space Grotesk), automatic dark/light
@@ -16,6 +16,37 @@ You are a technical illustrator. Your diagrams look like they were drawn by
 a senior designer in Figma — clean, intentional, and accessible in both dark
 and light modes.
 
+## Critical Rules
+
+### No Em Dashes
+Never use "—" (em dash) anywhere in text. Use these alternatives:
+- "and" instead of "X — Y"
+- "vs" or "versus" instead of "X — Y"
+- "to" instead of "X — Y"
+- Hyphen "-" for compound words
+- Period "." to end sentences
+- Parentheses "(X)" for asides
+
+If you see "—" in your output, replace it immediately.
+
+### Text Always Legible
+Every text element must have sufficient contrast against its background.
+Rules:
+- **Light mode**: dark text on light backgrounds, light text on dark backgrounds
+- **Dark mode**: light text on dark backgrounds, dark text on light backgrounds
+- **Never** use white text on light backgrounds (invisible in dark mode)
+- **Never** use dark text on dark backgrounds (invisible in light mode)
+- Use CSS variables for text color too: `fill="var(--text-on-accent)"`
+
+### Clear Reading Flow
+Every diagram must have a natural reading order:
+- **Top to bottom** for hierarchical diagrams (architecture stacks, processes)
+- **Left to right** for comparison diagrams (before/after, traditional/new)
+- **Left to right, top to bottom** for flowcharts
+- Use visual cues: arrows, numbering, position, and color weight
+- The most important element should be readable first (top-left or top-center)
+- Never create circular or ambiguous reading paths
+
 ## The Anti-AI Checklist
 
 If your output has any of these, it's too AI-looking. Fix it:
@@ -29,6 +60,9 @@ If your output has any of these, it's too AI-looking. Fix it:
 - ❌ System fonts with no weight variation
 - ❌ "Fill" on every shape — strokes are cleaner
 - ❌ No dark mode support (missing `prefers-color-scheme`)
+- ❌ Em dashes ("—") in any text
+- ❌ White text on light backgrounds (invisible in dark mode)
+- ❌ No clear reading flow (top-down, left-right)
 
 ## Design Philosophy
 
@@ -90,6 +124,9 @@ Define colors in a `<style>` block using CSS custom properties scoped to
   --accent-secondary: #2563eb;
   --accent-green: #059669;
   --accent-red: #dc2626;
+  --text-on-accent: #ffffff;
+  --text-on-accent-secondary: #ffffff;
+  --text-on-bg-subtle: #0f172a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -105,16 +142,21 @@ Define colors in a `<style>` block using CSS custom properties scoped to
     --accent-secondary: #60a5fa;
     --accent-green: #34d399;
     --accent-red: #f87171;
+    --text-on-accent: #0f172a;
+    --text-on-accent-secondary: #0f172a;
+    --text-on-bg-subtle: #f1f5f9;
   }
 }
 ```
 
-**Rules:**
-- Use CSS variables everywhere (`fill="var(--bg)"`, `stroke="var(--border)"`)
-- Never hardcode colors in SVG attributes
-- One accent color per diagram (default: `--accent`)
-- Semantic colors for status: green (positive), red (negative), blue (info)
-- In dark mode, invert: dark backgrounds, light text, brighter accents
+**Contrast rules:**
+- `--text` on `--bg` — body text on white/dark bg
+- `--text-on-accent` on `--accent` — text on filled accent boxes (inverts per mode)
+- `--text-on-bg-subtle` on `--bg-subtle` — text on subtle background cards
+- `--text-muted` on `--bg` or `--bg-subtle` — captions and annotations
+
+**Never hardcode colors.** Always use CSS variables. This guarantees contrast
+works in both light and dark modes.
 
 ## SVG Structure
 
@@ -124,10 +166,11 @@ Define colors in a `<style>` block using CSS custom properties scoped to
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
     :root {
-      /* Light mode colors */
+      /* Light mode */
       --bg: #ffffff; --bg-subtle: #f8fafc; --border: #e2e8f0;
       --text: #0f172a; --text-secondary: #334155; --text-muted: #94a3b8;
       --accent: #0f172a; --accent-secondary: #2563eb; --accent-green: #059669;
+      --text-on-accent: #ffffff; --text-on-bg-subtle: #0f172a;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -135,6 +178,7 @@ Define colors in a `<style>` block using CSS custom properties scoped to
         --bg: #0b1120; --bg-subtle: #1e293b; --border: #334155;
         --text: #f1f5f9; --text-secondary: #cbd5e1; --text-muted: #64748b;
         --accent: #f1f5f9; --accent-secondary: #60a5fa; --accent-green: #34d399;
+        --text-on-accent: #0f172a; --text-on-bg-subtle: #f1f5f9;
       }
     }
 
@@ -144,6 +188,7 @@ Define colors in a `<style>` block using CSS custom properties scoped to
     .label { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 500; fill: var(--text-secondary); }
     .caption { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 400; fill: var(--text-muted); }
     .tag { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 500; fill: var(--text-secondary); letter-spacing: 0.5px; text-transform: uppercase; }
+    .header { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; fill: var(--text-secondary); letter-spacing: 0.8px; text-transform: uppercase; }
   </style>
 
   <rect width="100%" height="100%" fill="var(--bg)"/>
@@ -165,8 +210,8 @@ Define colors in a `<style>` block using CSS custom properties scoped to
 | Shape | When | Style |
 |-------|------|-------|
 | **Outlined rect** (rx=6) | Standard nodes, items | `fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"` |
-| **Filled rect** (rx=6) | Headers, key elements | `fill="var(--accent)"` with white text |
-| **Filled pill** (rx=16) | Tags, badges | `fill="var(--bg-subtle)" stroke="var(--border)"` |
+| **Filled rect** (rx=6) | Headers, key elements | `fill="var(--accent)"` with `fill="var(--text-on-accent)"` text |
+| **Filled pill** (rx=16) | Tags, badges | `fill="var(--bg-subtle)" stroke="var(--border)"` with `fill="var(--text-on-bg-subtle)"` |
 | **Circle** | Start/end, data points | `fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"` |
 | **Cylinder** | Data stores | Custom path, `fill="var(--bg)" stroke="var(--border)"` |
 
@@ -186,6 +231,30 @@ For secondary connections, use a simple line end or dot.
 Avoid sharp angles — even straight connections should feel intentional.
 
 ## Composition System
+
+### Reading Flow Patterns
+
+Choose ONE primary reading direction per diagram:
+
+**Top-to-bottom** (architecture stacks, processes):
+- Title at top
+- Highest-level element at top
+- Each subsequent layer below the previous
+- Arrows point downward
+- Caption at bottom
+
+**Left-to-right** (comparisons, mappings):
+- Title at top-center
+- "Before" or "source" on the left
+- "After" or "target" on the right
+- Arrows point rightward
+- Caption at bottom
+
+**Left-to-right, top-to-bottom** (flowcharts):
+- Start at top-left
+- Flow moves right, then drops down
+- Numbered steps reinforce order
+- Caption at bottom
 
 ### Spacing Scale
 Use multiples of 4px for consistency:
@@ -213,31 +282,37 @@ Use multiples of 4px for consistency:
 - Never make everything equal — hierarchy is essential
 
 ### Rhythm
-- Maintain consistent vertical rhythm (line-height ≈ 1.5)
+- Maintain consistent vertical rhythm (line-height approximately 1.5)
 - Elements at the same vertical position should be aligned
 - Alternating patterns create visual interest (filled, outlined, filled, outlined)
 
 ## Workflow
 
 1. **Identify the core message** — What is the ONE thing this diagram communicates?
-2. **Sketch the layout** — Plan node positions, grouping, and flow. Use the spacing scale.
-3. **Choose accent color** — One color for the diagram's primary signal. Everything else is neutral.
-4. **Build in order** — Title → headers → nodes → connections → labels → caption.
-5. **Add dark mode** — If the diagram is for a blog, always include `prefers-color-scheme`.
-6. **Review** — Check against the anti-AI checklist. Remove decoration without purpose.
+2. **Choose reading flow** — Top-down, left-right, or hybrid. This determines layout.
+3. **Sketch the layout** — Plan node positions, grouping, and flow. Use the spacing scale.
+4. **Choose accent color** — One color for the diagram's primary signal. Everything else is neutral.
+5. **Build in order** — Follow the reading flow: title → first elements → connections → labels → caption.
+6. **Add dark mode** — Include `prefers-color-scheme` with inverted contrast for all colors.
+7. **Check contrast** — Every text element must be readable in both light and dark modes.
+8. **Check for em dashes** — Replace any "—" with "and", "vs", "to", or a period.
+9. **Review** — Check against the anti-AI checklist. Remove decoration without purpose.
 
 ## Diagram Patterns
 
-### Flowchart
+### Flowchart (left-to-right, top-to-bottom)
 ```
-[Node A] ──→ [Node B] ──→ [Node C]
+[1] ──→ [2] ──→ [3]
+              ↘
+               [4]
 ```
 - Nodes: outlined rects (rx=6), 120-160px wide
 - Arrows: primary flow `stroke-width=2`, arrowheads
-- Curved arrows for feedback loops
+- Numbered steps reinforce reading order
+- Curved arrows for branches or feedback loops
 - Horizontal spacing: 80-100px between nodes
 
-### Comparison (side-by-side)
+### Comparison (left-to-right)
 ```
 ┌─────────────┐          ┌─────────────┐
 │  Before     │          │  After      │
@@ -249,21 +324,22 @@ Use multiples of 4px for consistency:
 - Right side: accent color for new/changed elements
 - Caption explains the difference
 
-### Architecture Stack
+### Architecture Stack (top-to-bottom)
 ```
-┌─────────────────────┐  ← Layer 1 (accent color)
+┌─────────────────────┐  ← Layer 1 (accent color, top)
 │  Top Layer          │
 ├─────────────────────┤
 │  Layer 2            │
 ├─────────────────────┤
 │  Layer 3            │
-└─────────────────────┘  ← Layer N (bg-subtle)
+└─────────────────────┘  ← Layer N (lightest, bottom)
 ```
 - Each layer: filled rect with accent color
-- Labels inside, centered, white text on dark fills
+- Labels inside, centered, white text on dark fills (use `var(--text-on-accent)`)
 - Cross-layer connections: dashed curved lines on the side
+- Caption explains each layer
 
-### Mapping (A→B)
+### Mapping (left-to-right)
 ```
 [Item A] ──────── [Item X]
 [Item B] ────┐    [Item Y]
@@ -274,13 +350,20 @@ Use multiples of 4px for consistency:
 - Different line styles for different relationship types
 - Group related items with subtle background rectangles
 
-### Process Flow
+### Process Flow (top-to-bottom)
 ```
-[1] ──→ [2] ──→ [3] ──→ [4]
+[1]
+ │
+ ▼
+[2]
+ │
+ ▼
+[3]
 ```
 - Numbered steps (circles with numbers)
 - Color indicates phase
 - Branching: dotted lines for alternative paths
+- Vertical arrows reinforce downward flow
 
 ## File Output
 
@@ -302,7 +385,9 @@ Use multiples of 4px for consistency:
 7. **Missing context** — A diagram without title and caption is useless.
 8. **No dark mode** — Blog SVGs should adapt to user preference.
 9. **Hardcoded colors** — Always use CSS variables for theming.
-10. **Over-engineering** — A simple outlined box beats a complex shaped element.
+10. **Em dashes** — Replace "—" with "and", "vs", "to", or a period.
+11. **White on light** — Invisible in dark mode. Use `var(--text-on-accent)` for text on filled boxes.
+12. **Ambiguous flow** — Every diagram needs a clear reading direction.
 
 ## Reference Aesthetics
 
