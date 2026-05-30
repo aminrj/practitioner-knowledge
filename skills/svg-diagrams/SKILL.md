@@ -3,7 +3,7 @@ name: svg-diagrams
 version: 5.0.0
 description: >-
   Generate publication-quality SVG diagrams for blog posts and slides.
-  Uses IBM Plex Sans + IBM Plex Mono for a professional, technical look.
+  Uses system fonts (-apple-system, Segoe UI, Roboto) for zero-dependency rendering.
   Produces diagrams that look hand-crafted in Figma — never like AI-generated
   gradient boxes. Use when the user wants a diagram for publishing.
   Avoid for quick sketches.
@@ -73,9 +73,23 @@ Professional technical diagrams share these traits:
 
 ## Typography
 
-Use IBM Plex Sans (body) and IBM Plex Mono (labels, tags) from Google Fonts.
-IBM Plex was designed by IBM for technical documentation — it looks professional,
-institutional, and purposeful. Not generic. Not "Inter."
+Use a robust system font stack. Google Fonts `@import` inside SVG `<style>` is unreliable — many browsers reject it, causing all styles to be ignored. Use system fonts instead.
+
+```css
+font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+```
+
+This chain gives you:
+- **macOS/iOS**: San Francisco (Apple's system font) — clean, modern, professional
+- **Windows**: Segoe UI — Microsoft's system font, highly readable
+- **Linux**: Roboto or system default — clean, modern
+- **Fallback**: generic sans-serif
+
+Font assignment:
+- **700** — Titles (bold, authoritative)
+- **600** — Headers, section labels (medium-bold)
+- **500** — Body text in boxes (medium)
+- **400** — Captions, annotations (regular)
 
 ```css
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap');
@@ -128,13 +142,10 @@ Accent green:      #059669
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
-
-    .title { font-family: 'IBM Plex Sans', sans-serif; font-size: 24px; font-weight: 700; fill: #0f172a; }
-    .header { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600; fill: #334155; letter-spacing: 0.5px; text-transform: uppercase; }
-    .body { font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 500; fill: #0f172a; }
-    .caption { font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 400; fill: #64748b; }
-    .tag { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; fill: #334155; letter-spacing: 0.5px; text-transform: uppercase; }
+    .title { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; fill: #0f172a; }
+    .header { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #334155; letter-spacing: 0.5px; text-transform: uppercase; }
+    .body { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #0f172a; }
+    .caption { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; fill: #64748b; }
   </style>
 
   <rect width="800" height="500" fill="#ffffff"/>
@@ -150,6 +161,8 @@ Accent green:      #059669
   <text x="400" y="470" class="caption" text-anchor="middle">Caption</text>
 </svg>
 ```
+
+**No Google Fonts.** No `@import`. No `@font-face`. System fonts only. This guarantees the SVG renders everywhere without external dependencies.
 
 ## Shapes — Use Intentionally
 
@@ -333,4 +346,7 @@ Study these for the target look:
 - **Stripe docs** — Clean, minimal, consistent spacing
 - **Vercel blog** — Technical diagrams with clear hierarchy
 - **Linear** — Product diagrams with subtle color and clean lines
-- **IBM Design** — IBM Plex fonts, institutional quality, technical clarity
+- **Apple Human Interface Guidelines** — Clean system typography, consistent spacing
+- **Stripe docs** — Clean, minimal, consistent spacing
+- **Vercel blog** — Technical diagrams with clear hierarchy
+- **Linear** — Product diagrams with subtle color and clean lines
