@@ -65,8 +65,10 @@ IBM Plex was designed by IBM for technical documentation — it looks profession
 institutional, and purposeful. Not generic. Not "Inter."
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap');
 ```
+
+**Important**: In SVG files, the `&` in the Google Fonts URL must be escaped as `&amp;` because SVG is XML. In HTML `<style>` blocks, use plain `&`.
 
 Font assignment:
 - **IBM Plex Sans 700** — Titles (bold, authoritative)
