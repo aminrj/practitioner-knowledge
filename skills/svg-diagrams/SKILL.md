@@ -199,7 +199,10 @@ Write "text element" or "rect element" instead.
 </style>
 ```
 
-Also avoid em dashes (`—`) and Unicode box-drawing characters (`═══`) in comments. Use plain ASCII only: hyphens, equals signs, pipes.
+Also avoid:
+- Em dashes (`—`) and Unicode box-drawing characters (`═══`) — use plain ASCII
+- **Double hyphens `--` inside XML comments** — illegal in XML spec, causes parse failure.
+  Use `==` or spaces for separators: `<!-- ========== Section ========== -->`
 
 ## Shapes — Use Intentionally
 
@@ -390,10 +393,12 @@ def validate(path):
                     f'  vs  {l2}[{x2},{y2},{x2+w2},{y2+h2}]'
                 )
 
-    # 3. Text-overflow check: text baseline below its box bottom
-    #    For each text element, find the smallest enclosing box (by x-range).
-    #    Allow 4px below box bottom for descenders; flag anything more.
+    # 3. Text-overflow check: text baseline below its box bottom.
+    #    Only examine text whose y falls within [box_top, box_bottom + 8].
+    #    Text further below the box is intentional (floating labels, captions).
+    #    Allow 4px past box_bottom for descenders; flag anything more.
     DESCENDER_SLACK = 4
+    PROXIMITY = 8  # max px below box_bottom to still consider text "inside"
     for t in root.iter(f'{{{ns}}}text'):
         tx = float(t.get('x', 0))
         ty = float(t.get('y', 0))  # SVG y is baseline
@@ -401,9 +406,9 @@ def validate(path):
         if not txt:
             continue
         for (bx, by, bw, bh, bl) in boxes:
-            # text x-center within box x-range (with 8px slack for centered text)
-            if bx - 8 <= tx <= bx + bw + 8:
-                box_bottom = by + bh
+            box_bottom = by + bh
+            # Only check text whose x-center is in range and y is near the box
+            if bx - 8 <= tx <= bx + bw + 8 and by <= ty <= box_bottom + PROXIMITY:
                 if ty > box_bottom + DESCENDER_SLACK:
                     issues.append(
                         f'TEXT OVERFLOW  "{txt[:30]}"  baseline y={ty}'
