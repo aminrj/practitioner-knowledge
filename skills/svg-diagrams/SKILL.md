@@ -1,6 +1,6 @@
 ---
 name: svg-diagrams
-version: 5.0.0
+version: 5.1.0
 description: >-
   Generate publication-quality SVG diagrams for blog posts and slides.
   Uses system fonts (-apple-system, Segoe UI, Roboto) for zero-dependency rendering.
@@ -30,6 +30,25 @@ Every text element must be readable against its background. This is non-negotiab
 **Only two patterns allowed for boxes:**
 - **Outlined boxes**: `fill="#ffffff"` background + `fill="#0f172a"` text (dark on white)
 - **Filled boxes**: `fill="#0f172a"` background + `fill="#ffffff"` text (white on dark)
+
+> **SVG CSS cascade rule — root fix**: Never put `fill` inside a CSS class. Keep classes for
+> fonts only (family, size, weight). Always put `fill` as a presentation attribute directly on
+> each `<text>` element.
+>
+> When a CSS class sets `fill: #0f172a`, that class rule silently beats any `fill="..."` attribute
+> you add later — so white text on a dark box becomes invisible. Removing `fill` from classes
+> eliminates the conflict entirely: `fill="#ffffff"` on the element just works.
+>
+> ```xml
+> <!-- WRONG — fill in class silently overrides the attribute -->
+> .body { font-size: 13px; font-weight: 500; fill: #0f172a; }
+> <text class="body" fill="#ffffff">invisible on dark box</text>
+>
+> <!-- CORRECT — fill only on elements, classes are font-only -->
+> .body { font-size: 13px; font-weight: 500; }
+> <text class="body" fill="#ffffff">visible white text</text>
+> <text class="body" fill="#0f172a">visible dark text</text>
+> ```
 
 **Never use mid-tone fills** (like `#64748b`, `#94a3b8`, `#334155`, `#475569`) because:
 - White text on `#64748b` is unreadable
@@ -91,25 +110,13 @@ Font assignment:
 - **500** — Body text in boxes (medium)
 - **400** — Captions, annotations (regular)
 
-```css
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap');
+Size scale:
 ```
-
-**Important**: In SVG files, the `&` in the Google Fonts URL must be escaped as `&amp;` because SVG is XML. In HTML `<style>` blocks, use plain `&`.
-
-Font assignment:
-- **IBM Plex Sans 700** — Titles (bold, authoritative)
-- **IBM Plex Sans 600** — Headers, section labels (medium-bold)
-- **IBM Plex Sans 500** — Body text in boxes (medium)
-- **IBM Plex Sans 400** — Captions, annotations (regular)
-- **IBM Plex Mono 500** — Tags, codes, technical terms (monospaced)
-
-```
-Title:      24px, IBM Plex Sans 700
-Header:     12px, IBM Plex Sans 600
-Body:       14px, IBM Plex Sans 500
-Caption:    12px, IBM Plex Sans 400
-Tag:        10px, IBM Plex Mono 500 (uppercase, letter-spacing 0.5)
+Title:   24px / weight 700
+Header:  12px / weight 600 / uppercase / letter-spacing 0.5px
+Body:    14px / weight 500
+Sub:     12px / weight 400
+Caption: 12px / weight 400
 ```
 
 ## Color System
@@ -142,34 +149,64 @@ Accent green:      #059669
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
   <style>
-    .title { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; fill: #0f172a; }
-    .header { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #334155; letter-spacing: 0.5px; text-transform: uppercase; }
-    .body { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; fill: #0f172a; }
-    .caption { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; fill: #64748b; }
+    /* Classes encode ONLY font properties — never fill.
+       Put fill as an attribute on each <text> element so colors
+       are explicit and the SVG cascade cannot silently override them. */
+    .title   { font-family: -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:24px; font-weight:700; }
+    .header  { font-family: -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+    .body    { font-family: -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; font-weight:500; }
+    .sub     { font-family: -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; font-weight:400; }
+    .caption { font-family: -apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:12px; font-weight:400; }
   </style>
 
   <rect width="800" height="500" fill="#ffffff"/>
 
-  <!-- Title -->
-  <text x="400" y="40" class="title" text-anchor="middle">Title</text>
+  <!-- Title: fill attribute, not class -->
+  <text x="400" y="40" class="title" fill="#0f172a" text-anchor="middle">Title</text>
   <line x1="160" y1="56" x2="640" y2="56" stroke="#f1f5f9" stroke-width="1"/>
 
-  <!-- Content -->
-  <!-- ... -->
+  <!-- Dark-background box: fill="#ffffff" works because no class competes -->
+  <rect x="300" y="80" width="200" height="44" rx="8" fill="#0f172a"/>
+  <text x="400" y="107" class="body" fill="#ffffff" text-anchor="middle">Label on dark box</text>
+
+  <!-- Light-background box -->
+  <rect x="300" y="160" width="200" height="44" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="400" y="187" class="body" fill="#0f172a" text-anchor="middle">Label on light box</text>
 
   <!-- Caption -->
-  <text x="400" y="470" class="caption" text-anchor="middle">Caption</text>
+  <text x="400" y="470" class="caption" fill="#64748b" text-anchor="middle">Caption</text>
 </svg>
 ```
 
 **No Google Fonts.** No `@import`. No `@font-face`. System fonts only. This guarantees the SVG renders everywhere without external dependencies.
+
+## XML Safety — ABSOLUTE RULE
+
+SVG is XML. Any `<`, `>`, or `&` inside a `<style>` block or XML comment breaks the parser silently or throws a parse error. This causes the entire SVG to fail to render.
+
+**Never write tag names like `<text>` or `<rect>` inside CSS comments or XML comments.**
+Write "text element" or "rect element" instead.
+
+```xml
+<!-- WRONG: breaks the XML parser -->
+<style>
+  /* fill is set on each <text> element */
+</style>
+
+<!-- CORRECT -->
+<style>
+  /* fill is set on each text element */
+</style>
+```
+
+Also avoid em dashes (`—`) and Unicode box-drawing characters (`═══`) in comments. Use plain ASCII only: hyphens, equals signs, pipes.
 
 ## Shapes — Use Intentionally
 
 | Shape | When | Style |
 |-------|------|-------|
 | **Outlined rect** (rx=6) | Standard nodes, items | `fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"`, text `#0f172a` |
-| **Filled rect** (rx=6) | Headers, key elements ONLY | `fill="#0f172a"`, text `#ffffff` |
+| **Filled rect** (rx=6) | Headers, key elements ONLY | `fill="#0f172a"`, text `fill="#ffffff"` as attribute (works because classes carry no fill) |
 | **Filled pill** (rx=16) | Tags, badges | `fill="#f8fafc" stroke="#e2e8f0"`, text `#334155` |
 | **Circle** | Start/end, data points | `fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"`, text `#0f172a` |
 | **Cylinder** | Data stores | Custom path, `fill="#ffffff" stroke="#e2e8f0"`, text `#0f172a` |
@@ -229,6 +266,63 @@ Use multiples of 4px for consistency:
 | Between title and content | 20px |
 | Between content and caption | 24px |
 
+### Node Sizing — Compute Before You Code
+
+**MANDATORY RULE: Never guess a box height. Calculate it from the text content it must contain.**
+
+Every node box has a fixed anatomy. Use this formula:
+
+```
+box_height = top_pad + badge_h + badge_gap + (title_lines × title_lh) + (body_lines × body_lh) + bottom_pad
+
+  top_pad    = 10
+  badge_h    = 14   (the badge/step-label rect)
+  badge_gap  = 10   (space between badge bottom and first title baseline)
+  title_lh   = 18   (14px font + 4px leading)
+  body_lh    = 16   (12px font + 4px leading)
+  bottom_pad = 12
+```
+
+**Reference heights by content shape:**
+
+| Badge | Title lines | Body lines | Height |
+|-------|-------------|------------|--------|
+| yes   | 1           | 0          | 64px   |
+| yes   | 1           | 1          | 80px   |
+| yes   | 1           | 2          | 96px   |
+| yes   | 2           | 0          | 82px   |
+| yes   | 2           | 1          | 98px   |
+| yes   | 2           | 2          | 114px  |
+
+**Then derive every y-coordinate from the box top:**
+
+```
+Let T = box rect y
+
+badge_rect.y      = T + 10
+badge_text.y      = T + 10 + 11                     (baseline inside 14px badge)
+title_line_1.y    = T + 10 + 14 + 10 + 14 = T + 48  (badge bottom + gap + font ascent)
+title_line_2.y    = title_line_1.y + 18
+body_line_1.y     = title_last.y + 8 + 12            (gap + font ascent)
+body_line_2.y     = body_line_1.y + 16
+box_bottom        = T + box_height                   (all text must have baseline < box_bottom - 4)
+```
+
+**Example — badge + 2 title lines + 2 body lines, T=80:**
+
+```
+box_height   = 10 + 14 + 10 + 36 + 32 + 12 = 114px
+badge_rect.y = 90, badge_text.y = 101
+title_1.y    = 128, title_2.y = 146
+body_1.y     = 166, body_2.y = 182
+box_bottom   = 194   (body_2 baseline 182 < 190 — OK)
+```
+
+**For horizontal step chains with 5+ nodes:** the combined width of boxes plus gaps can exceed the canvas. Calculate the total span first:
+`total = N_boxes × box_width + (N_boxes - 1) × gap`
+
+If `total > canvas_width - 80` (allowing margins), either widen the canvas, reduce body lines inside boxes, or switch to a 2-row layout. Never shrink boxes until the text no longer fits.
+
 ### Alignment
 - Align elements on a grid, but never make the grid visible
 - Group related elements with subtle background rectangles (`fill="#f8fafc" rx=8`)
@@ -241,16 +335,114 @@ Use multiples of 4px for consistency:
 - Tertiary elements: muted colors, dashed lines, smaller
 - Never make everything equal — hierarchy is essential
 
+## Validation Script
+
+After saving the SVG, run this script to catch layout bugs automatically.
+It checks: boxes in-bounds, no accidental overlaps, and no text bleeding outside its box.
+
+```bash
+python3 - <<'EOF' path/to/diagram.svg
+import xml.etree.ElementTree as ET, sys, re
+
+def validate(path):
+    # Check for XML-unsafe content in style/comments before parsing
+    with open(path, encoding='utf-8') as f:
+        raw = f.read()
+    style_m = re.search(r'<style>(.*?)</style>', raw, re.DOTALL)
+    if style_m and ('<' in style_m.group(1) or '>' in style_m.group(1)):
+        print(f'FAIL: XML-unsafe < or > inside <style> block -- will break SVG parser')
+        sys.exit(1)
+
+    root = ET.parse(path).getroot()
+    W = float(root.get('width', 0))
+    H = float(root.get('height', 0))
+    ns = 'http://www.w3.org/2000/svg'
+
+    # Collect content boxes (skip background and tiny badges)
+    boxes = []
+    for r in root.iter(f'{{{ns}}}rect'):
+        x = float(r.get('x', 0))
+        y = float(r.get('y', 0))
+        w = float(r.get('width', 0))
+        h = float(r.get('height', 0))
+        if w >= W * 0.9 and h >= H * 0.9:
+            continue  # background
+        if w < 40 or h < 20:
+            continue  # badge/decoration
+        label = r.get('id') or f'rect@{x},{y}'
+        boxes.append((x, y, w, h, label))
+
+    issues = []
+
+    # 1. Out-of-bounds check
+    for (x1, y1, w1, h1, l1) in boxes:
+        if x1 < 0 or y1 < 0 or x1 + w1 > W or y1 + h1 > H:
+            issues.append(f'OUT OF BOUNDS  {l1}  [{x1},{y1} to {x1+w1},{y1+h1}]  canvas={W}x{H}')
+
+    # 2. Accidental overlap check (skip intentional badge-in-box: area ratio < 0.15)
+    for i, (x1, y1, w1, h1, l1) in enumerate(boxes):
+        for x2, y2, w2, h2, l2 in boxes[i+1:]:
+            if min(w1*h1, w2*h2) / max(w1*h1, w2*h2) < 0.15:
+                continue
+            if x1 < x2+w2 and x1+w1 > x2 and y1 < y2+h2 and y1+h1 > y2:
+                issues.append(
+                    f'OVERLAP  {l1}[{x1},{y1},{x1+w1},{y1+h1}]'
+                    f'  vs  {l2}[{x2},{y2},{x2+w2},{y2+h2}]'
+                )
+
+    # 3. Text-overflow check: text baseline below its box bottom
+    #    For each text element, find the smallest enclosing box (by x-range).
+    #    Allow 4px below box bottom for descenders; flag anything more.
+    DESCENDER_SLACK = 4
+    for t in root.iter(f'{{{ns}}}text'):
+        tx = float(t.get('x', 0))
+        ty = float(t.get('y', 0))  # SVG y is baseline
+        txt = (t.text or '').strip()
+        if not txt:
+            continue
+        for (bx, by, bw, bh, bl) in boxes:
+            # text x-center within box x-range (with 8px slack for centered text)
+            if bx - 8 <= tx <= bx + bw + 8:
+                box_bottom = by + bh
+                if ty > box_bottom + DESCENDER_SLACK:
+                    issues.append(
+                        f'TEXT OVERFLOW  "{txt[:30]}"  baseline y={ty}'
+                        f'  is {ty - box_bottom:.0f}px below  {bl}[bottom={box_bottom}]'
+                    )
+
+    if issues:
+        print(f'FAIL  {path}  ({len(boxes)} boxes):')
+        for issue in issues:
+            print(' ', issue)
+        sys.exit(1)
+    else:
+        print(f'OK  {path}  ({len(boxes)} boxes, no overlaps, no text overflow, all within {W}x{H})')
+
+validate(sys.argv[1])
+EOF
+```
+
+Replace `path/to/diagram.svg` with the actual file path:
+```bash
+python3 validate.py assets/diagrams/my-diagram.svg
+```
+
+**Interpreting TEXT OVERFLOW errors:** The baseline of a text element is past the box bottom. Fix by increasing `height` using the node sizing formula — never by moving text closer together.
+
 ## Workflow
 
 1. **Identify the core message** — What is the ONE thing this diagram communicates?
 2. **Choose reading flow** — Top-down, left-right, or hybrid. This determines layout.
-3. **Sketch the layout** — Plan node positions, grouping, and flow. Use the spacing scale.
-4. **Choose accent color** — One color for the diagram's primary signal. Everything else is neutral.
-5. **Build in order** — Follow the reading flow: title → first elements → connections → labels → caption.
-6. **Check contrast** — Dark text on white boxes, white text on dark boxes. Always legible.
-7. **Check for em dashes** — Replace any "—" with "and", "vs", "to", or a period.
-8. **Review** — Check against the anti-AI checklist. Remove decoration without purpose.
+3. **Compute box heights before touching coordinates** — For every node, list its text lines and apply the node sizing formula. Write the heights down. Never start coding with placeholder sizes.
+4. **Check horizontal span for step chains** — For N boxes of width W with gap G: `span = N*W + (N-1)*G`. If `span > canvas - 80`, widen the canvas or reduce to a 2-row layout.
+5. **Sketch the layout** — Plan node positions, grouping, and flow. Use the spacing scale and the heights you just computed.
+6. **Choose accent color** — One color for the diagram's primary signal. Everything else is neutral.
+7. **Build in order** — Follow the reading flow: title → first elements → connections → labels → caption.
+8. **Run the validation script** — Catches: XML-unsafe style content, box overlaps, out-of-bounds elements, and text overflowing outside boxes. Fix every reported issue before continuing.
+9. **Check every `<text>` element has an explicit `fill` attribute** — never rely on a class for fill. Dark box → `fill="#ffffff"`, light box → `fill="#0f172a"`, captions → `fill="#64748b"`.
+10. **Check contrast** — Dark text on white boxes, white text on dark boxes. Always legible.
+11. **Check for em dashes** — Replace any "—" with "and", "vs", "to", or a period.
+12. **Review** — Check against the anti-AI checklist. Remove decoration without purpose.
 
 ## Diagram Patterns
 
@@ -287,7 +479,7 @@ Use multiples of 4px for consistency:
 │  Layer 3            │
 └─────────────────────┘  ← Layer N (outlined, white)
 ```
-- Layer 1: filled rect with accent color, white text
+- Layer 1: filled rect with accent color, `fill="#ffffff"` on text element
 - All other layers: outlined rects with white fill, dark text
 - Cross-layer connections: dashed curved lines on the side
 - Caption explains each layer
@@ -325,7 +517,14 @@ Use multiples of 4px for consistency:
 - Name: `topic-description.svg` (e.g., `stride-ai-mapping.svg`)
 - Width: 700-900px for blog posts, wider (1000-1200px) for slides
 - Set `width` and `height` attributes on the `<svg>` element
-- Reference in markdown: `![description](/assets/diagrams/filename.svg)`
+- Reference in markdown or HTML using **SVG for both the display src and the popup href**:
+  ```html
+  <a href="/assets/diagrams/filename.svg" class="popup img-link shimmer">
+    <img src="/assets/diagrams/filename.svg" alt="...">
+  </a>
+  ```
+  Never use a separate `.png` for the href — it becomes stale the moment the SVG is updated.
+  The site's custom lightbox handles SVG natively.
 
 ## Common Mistakes
 
@@ -339,6 +538,21 @@ Use multiples of 4px for consistency:
 8. **Hardcoded wrong contrast** — White text on light backgrounds is invisible.
 9. **Em dashes** — Replace "—" with "and", "vs", "to", or a period.
 10. **Ambiguous flow** — Every diagram needs a clear reading direction.
+11. **Fill color in CSS classes** — Putting `fill: #0f172a` in a class silently breaks any
+    per-element `fill="..."` override (the class always wins). Fix at the root: CSS classes
+    carry only font properties; every `<text>` element carries its own `fill` attribute.
+12. **Overlapping boxes in multi-branch flowcharts** — Before writing coordinates, calculate
+    the total horizontal span of each level and verify it fits in the canvas width. For N
+    sibling boxes of width W with gap G, the span is `N*W + (N-1)*G`. If branches at
+    different depths share x-ranges, ensure they are also at different y-ranges (no y-overlap).
+    When in doubt, widen the canvas (up to 1000px for blog posts) rather than shrinking boxes.
+13. **Guessed box heights** — Never set `height` to a round number and hope the text fits.
+    Use the node sizing formula. Text rendered past the box border is a broken diagram.
+    The validation script's TEXT OVERFLOW check catches this — run it every time.
+14. **XML-unsafe content in style or comments** — Tag names like `<text>` or `<rect>` inside
+    a `<style>` block break the XML parser (the `</style>` closing tag appears to be a mismatch).
+    Em dashes and Unicode box-drawing characters in XML comments can also cause parse failures.
+    Write "text element" not "`<text>`", and use plain ASCII (`---`, `===`) in comments.
 
 ## Reference Aesthetics
 
@@ -347,6 +561,3 @@ Study these for the target look:
 - **Vercel blog** — Technical diagrams with clear hierarchy
 - **Linear** — Product diagrams with subtle color and clean lines
 - **Apple Human Interface Guidelines** — Clean system typography, consistent spacing
-- **Stripe docs** — Clean, minimal, consistent spacing
-- **Vercel blog** — Technical diagrams with clear hierarchy
-- **Linear** — Product diagrams with subtle color and clean lines
