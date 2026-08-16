@@ -22,8 +22,13 @@ with clarity. This skill runs against the Zettelkasten system at
 
 Before starting, determine today's date and locate the current daily note:
 
-1. Check `~/zettelkasten/0-inbox/daily-YYYY-MM-DD.md` for today's note
-2. If it doesn't exist, check `~/zettelkasten/periodic-notes/daily-notes/`
+1. Check `~/zettelkasten/0-inbox/YYYY-MM-DD.md` for today's note. This is the
+   canonical name — bare date, no prefix — as created by `:ZkNewDaily` and by
+   Telekasten's `goto_today`. Never create a `daily-YYYY-MM-DD.md` variant; it
+   would shadow the real note and break calendar and backlink resolution.
+2. If it doesn't exist, check `~/zettelkasten/periodic-notes/daily-notes/`,
+   which still holds a legacy mix of `YYYY-MM-DD.md` and `daily-YYYY-MM-DD.md`
+   from an older convention — read either form there, but write only bare.
 3. If neither exists, the user hasn't created a daily note yet — note this
 
 Also locate yesterday's daily note for context on carry-over items.
