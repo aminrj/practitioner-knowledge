@@ -1,0 +1,1 @@
+/home/amine/git/pbb-skills/skills-curated/plugins/researcher-writer/skills/researcher-writer/SKILL.md
